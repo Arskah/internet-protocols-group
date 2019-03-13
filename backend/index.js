@@ -1,7 +1,8 @@
 
 const express = require('express');
 const app = express();
-const http = require('http').Server(app);
+const http = require('http');
+const server = new http.Server(app);
 const io = require('socket.io')(http);
 
 const port = process.env.port || 3000;
@@ -19,6 +20,6 @@ io.on('connection', (socket) => {
   });
 });
 
-http.listen(port, function() {
+server.listen(port, function() {
   console.log(`Server running at port ${port}`);
 });

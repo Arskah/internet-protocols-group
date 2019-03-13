@@ -1,62 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-            <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
-            <script type="text/javascript" src="/socket.io/socket.io.js"></script>
-    </head>
-    <body>
-        <video src="" id="video" style="width:700px; height: 350px;" autoplay="true"></video>
-
-        <canvas style="display:none;" id="preview"></canvas>
-        <div id="logger"></div>
-    </body>
-<script type="text/javascript">
-    var canvas = document.getElementById("preview");
+  <head>
+    <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+  </head>
+  <body>
+    <video src="" id="video" style="width:100%%; height: 100%%;" autoplay="true"></video>
+    <canvas style="display:none;" id="preview"></canvas>
+    <div id="logger"></div>
+  </body>
+  <script type="text/javascript">
+    var canvas = document.getElementById('preview');
     var context = canvas.getContext('2d');
-
-    canvas.width = 900;
-    canvas.height = 700;
-
+    canvas.width = 1980;
+    canvas.height = 1080;
     context.width = canvas.width;
     context.height = canvas.height;
-
-    var video = document.getElementById("video");
-
+    var video = document.getElementById('video');
     var socket = io();
 
-    function logger(msg){
-        $('#logger').text(msg);
+    function logger(msg) {
+      $('#logger').text(msg);
     }
 
-    function loadCamera(stream){
+    function loadCamera(stream) {
       try {
-          video.srcObject = stream;
-          } catch (error) {
-       video.src = URL.createObjectURL(stream);
-          }
-       logger("Camera connected");
+        video.srcObject = stream;
+      } catch (error) {
+        video.src = URL.createObjectURL(stream);
+      };
+      logger('Camera connected');
     }
 
-    function loadFail(){
-        logger("Camera not connected");
+    function loadFail() {
+      logger('Camera not connected');
     }
 
-    function viewVideo(video,context){
-        context.drawImage(video,0,0,context.width,context.height);
-        socket.emit('stream',canvas.toDataURL('image/webp'));
+    function viewVideo(video,context) {
+      context.drawImage(video, 0, 0, context.width, context.height);
+      socket.emit('stream',canvas.toDataURL('image/webp'));
     }
 
-    $(function(){
-        navigator.getUserMedia = ( navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia );
+    $(function() {
+      navigator.getUserMedia = ( navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia );
+      if(navigator.getUserMedia){
+        navigator.getUserMedia({
+          video: true,
+          audio: false
+        }, loadCamera, loadFail);
+      }
 
-        if(navigator.getUserMedia){
-            navigator.getUserMedia({video: true, audio: false},loadCamera,loadFail);
-        }
-
-        setInterval(function(){
-            viewVideo(video,context);
-        },5);
+      setInterval(function() {
+        viewVideo(video, context);
+      }, 5);
     });
-
-</script>
+  </script>
 </html>
