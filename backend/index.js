@@ -1,7 +1,24 @@
-const express = require('express')
-const app = express()
-const port = 3000
 
-app.get('/', (req, res) => res.send('Hello World!'))
+const express = require('express');
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+const port = process.env.port || 3000;
+
+app.use(express.static(__dirname + '/public'));
+
+app.get('/', (req, res) => {
+  res.redirect('index.html');
+});
+
+
+io.on('connection', (socket) => {
+  socket.on('stream', function(image) {
+    socket.broadcast.emit('stream', image);
+  });
+});
+
+http.listen(port, function() {
+  console.log(`Server running at port ${port}`);
+});
