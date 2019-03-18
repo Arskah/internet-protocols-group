@@ -99,6 +99,7 @@ function removeBandwidthRestriction(sdp) {
   return sdp.replace(/b=AS:.*\r\n/, '').replace(/b=TIAS:.*\r\n/, '');
 }
 
+// https://github.com/andyet/SimpleWebRTC/issues/556
 function lowerBandwidth(bandwidth) {
   var remote = $.webrtc.getPeers()[0].pc.pc;
   remote.createOffer()
