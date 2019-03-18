@@ -45,17 +45,6 @@ window.addEventListener('load', () => {
     remoteVideosCount += 1;
   });
 
-  // Post Local Message
-  const postMessage = (message) => {
-    const chatMessage = {
-      username,
-      message,
-      postedOn: new Date().toLocaleString('en-GB'),
-    };
-    // Send to all peers
-    $.webrtc.sendToAll('chat', chatMessage);
-  };
-
   // Join existing Chat Room
   const joinRoom = (roomName) => {
     // eslint-disable-next-line no-console
@@ -67,7 +56,8 @@ window.addEventListener('load', () => {
   // Receive message from remote user
   $.webrtc.connection.on('message', (data) => {
     if (data.type === 'chat') {
-      const message = data.payload;
+      const message = data.payload.message;
+      console.log('WebRTC');
       console.log(message);
     }
   });
@@ -79,6 +69,16 @@ window.addEventListener('load', () => {
     return false;
   });
 });
+
+// Post Local Message
+function postMessage(message) {
+  const chatMessage = {
+    message,
+    postedOn: new Date().toLocaleString('en-GB'),
+  };
+  // Send to all peers
+  $.webrtc.sendToAll('chat', chatMessage);
+};
 
 function updateBandwidthRestriction(sdp, bandwidth) {
   let modifier = 'AS';
@@ -117,3 +117,25 @@ function lowerBandwidth(bandwidth) {
     })
     .catch(onSetSessionDescriptionError);
 }
+
+function connectMQTT() {
+  $.client = mqtt.connect("wss://test.mosquitto.org:8081");
+  $.client.on('connect', () => {
+    $.client.subscribe('presence', (err) => {
+      if (!err) {
+        $.client.publish('presence', 'Hello mqtt')
+      };
+    });
+  });
+
+  $.client.subscribe("game/data");
+
+  $.client.on('message', (topic, message) => {
+    console.log('MQTT: ' + message.toString());
+    postMessage(message);
+  });
+};
+
+function sendMQTT(data) {
+  $.client.publish("game/data", data);
+};
